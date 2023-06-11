@@ -1,0 +1,1 @@
+This is a Linux tool which aims to safe remove files.
