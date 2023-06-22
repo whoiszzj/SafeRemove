@@ -20,7 +20,10 @@ def tree(root_paths, level: int = -1, limit_to_directories: bool = False,
         if not level:
             return
         remove_prefix = "\033[1;31mRemove\033[0m F: "
-        yield remove_prefix + prefix + root.name
+        if prefix == '':
+            yield remove_prefix + str(root)
+        else:
+            yield remove_prefix + prefix + root.name
         files += 1
 
     def dir_gen(root: Path, prefix: str = '', level=-1):
@@ -28,7 +31,10 @@ def tree(root_paths, level: int = -1, limit_to_directories: bool = False,
         if not level:
             return
         remove_prefix = "\033[1;31mRemove\033[0m \033[1;34mD\033[0m: "
-        yield remove_prefix + prefix + "\033[1;34m{}\033[0m/".format(root.name)
+        if prefix == '':
+            yield remove_prefix + "\033[1;34m{}\033[0m/".format(str(root))
+        else:
+            yield remove_prefix + prefix + "\033[1;34m{}\033[0m/".format(root.name)
         directories += 1
 
     def iter_dir(root: Path, prefix: str = '', level=-1):
@@ -78,11 +84,17 @@ if __name__ == '__main__':
         paths = [Path(p) for p in paths]
         all_paths.extend(paths)
 
+    print(all_paths)
+
     tree(all_paths, level=-1, length_limit=1000)
 
     # prompt user to confirm, and auto enter
     while True:
-        s = input("Are you sure to remove these files and dirs? (y/n): ")
+        try:
+            s = input("Are you sure to remove these files and dirs? (y/n): ")
+        except KeyboardInterrupt:
+            print()
+            sys.exit(0)
         if s == "y" or s == "Y" or s == "":
             break
         elif s == "n" or s == "N":

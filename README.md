@@ -18,6 +18,8 @@ Besides you can build an executable file with the script [build.sh](build.sh), a
 If you meet the problem that the 'pathlib' package is an obsolete backport balabala...., you can refer to [this](https://stackoverflow.com/questions/75476135/how-to-convert-python-file-to-exe-the-pathlib-package-is-an-obsolete-backport), in brief, change you pyinstaller to a lower version such as, 5.1. 
 
 ## Log
+2023-06-22: When delete a single file from a directory, it will show the complete path of the file. Besides, add ctrl + C to exit the program.
+
 2023-06-11: upload the init version 1.0, add basic functions.
     
 ## Reference
