@@ -84,7 +84,7 @@ if __name__ == '__main__':
         paths = [Path(p) for p in paths]
         all_paths.extend(paths)
 
-    print(all_paths)
+    # print(all_paths)
 
     tree(all_paths, level=-1, length_limit=1000)
 
