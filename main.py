@@ -84,6 +84,10 @@ if __name__ == '__main__':
         paths = [Path(p) for p in paths]
         all_paths.extend(paths)
 
+    if not all_paths:
+        print("No file or directory found.")
+        sys.exit(1)
+
     # print(all_paths)
 
     tree(all_paths, level=-1, length_limit=1000)
