@@ -56,8 +56,6 @@ def tree(root_paths, level: int = -1, limit_to_directories: bool = False,
 
     iterator = None
     for root_path in root_paths:
-        if not root_path.exists():
-            continue
         if root_path.is_dir():
             temp_iter = dir_gen(root_path, level=level)
             temp_iter = chain(temp_iter, iter_dir(root_path, level=level))
