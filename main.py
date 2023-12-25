@@ -105,7 +105,7 @@ if __name__ == '__main__':
             pass
     # remove
     for path in all_paths:
-        if os.path.isfile(path):
-            os.remove(path)
-        elif os.path.isdir(path):
+        if os.path.isdir(path):
             shutil.rmtree(path)
+        else:
+            os.remove(path)
