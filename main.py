@@ -56,7 +56,9 @@ def tree(root_paths, level: int = -1, limit_to_directories: bool = False,
 
     iterator = None
     for root_path in root_paths:
-        if root_path.is_dir():
+        if root_path.is_symlink():
+            temp_iter = file_gen(root_path, level=level)
+        elif root_path.is_dir():
             temp_iter = dir_gen(root_path, level=level)
             temp_iter = chain(temp_iter, iter_dir(root_path, level=level))
         elif not limit_to_directories:
@@ -105,7 +107,9 @@ if __name__ == '__main__':
             pass
     # remove
     for path in all_paths:
-        if os.path.isdir(path):
+        if os.path.islink(path):
+            os.unlink(path)
+        elif os.path.isdir(path):
             shutil.rmtree(path)
         else:
             os.remove(path)
