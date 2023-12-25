@@ -6,8 +6,7 @@ from pathlib import Path
 from itertools import islice, chain
 
 
-def tree(root_paths, level: int = -1, limit_to_directories: bool = False,
-         length_limit: int = 1000):
+def tree(root_paths, level: int = -1, length_limit: int = 1000):
     files = 0
     directories = 0
     space = '    '
@@ -20,6 +19,28 @@ def tree(root_paths, level: int = -1, limit_to_directories: bool = False,
         if not level:
             return
         remove_prefix = "\033[1;31mRemove\033[0m F: "
+        if prefix == '':
+            yield remove_prefix + str(root)
+        else:
+            yield remove_prefix + prefix + root.name
+        files += 1
+
+    def link_gen(root: Path, prefix: str = '', level=-1):
+        nonlocal files
+        if not level:
+            return
+        remove_prefix = "\033[1;31mRemove\033[0m L: "
+        if prefix == '':
+            yield remove_prefix + str(root)
+        else:
+            yield remove_prefix + prefix + root.name
+        files += 1
+
+    def mount_gen(root: Path, prefix: str = '', level=-1):
+        nonlocal files
+        if not level:
+            return
+        remove_prefix = "\033[1;31mRemove\033[0m M: "
         if prefix == '':
             yield remove_prefix + str(root)
         else:
@@ -41,27 +62,30 @@ def tree(root_paths, level: int = -1, limit_to_directories: bool = False,
         nonlocal files, directories
         if not level:
             return  # 0, stop iterating
-        if limit_to_directories:
-            contents = [d for d in root.iterdir() if d.is_dir()]
-        else:
-            contents = list(root.iterdir())
+        contents = list(root.iterdir())
         pointers = [tee] * (len(contents) - 1) + [last]
         for pointer, path in zip(pointers, contents):
-            if path.is_dir():
+            if path.is_mount():
+                yield from mount_gen(path, prefix=prefix + pointer, level=level)
+            elif path.is_symlink():
+                yield from link_gen(path, prefix=prefix + pointer, level=level)
+            elif path.is_dir():
                 yield from dir_gen(path, prefix=prefix + pointer, level=level)
                 extension = branch if pointer == tee else space
                 yield from iter_dir(path, prefix=prefix + extension, level=level - 1)
-            elif not limit_to_directories:
+            else:
                 yield from file_gen(path, prefix=prefix + pointer, level=level)
 
     iterator = None
     for root_path in root_paths:
-        if root_path.is_symlink():
-            temp_iter = file_gen(root_path, level=level)
+        if root_path.is_mount():
+            temp_iter = mount_gen(root_path, level=level)
+        elif root_path.is_symlink():
+            temp_iter = link_gen(root_path, level=level)
         elif root_path.is_dir():
             temp_iter = dir_gen(root_path, level=level)
             temp_iter = chain(temp_iter, iter_dir(root_path, level=level))
-        elif not limit_to_directories:
+        else:
             temp_iter = file_gen(root_path, level=level)
         iterator = chain(iterator, temp_iter) if iterator else temp_iter
 
@@ -107,7 +131,9 @@ if __name__ == '__main__':
             pass
     # remove
     for path in all_paths:
-        if os.path.islink(path):
+        if os.path.ismount(path):
+            os.system("umount {}".format(path))
+        elif os.path.islink(path):
             os.unlink(path)
         elif os.path.isdir(path):
             shutil.rmtree(path)
