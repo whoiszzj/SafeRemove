@@ -132,10 +132,22 @@ if __name__ == '__main__':
     # remove
     for path in all_paths:
         if os.path.ismount(path):
-            os.system("umount {}".format(path))
+            try:
+                os.system("umount {}".format(path))
+            except:
+                print("Failed to unmount", path)
         elif os.path.islink(path):
-            os.unlink(path)
+            try:
+                os.unlink(path)
+            except:
+                print("Failed to remove link", path)
         elif os.path.isdir(path):
-            shutil.rmtree(path)
+            try:
+                shutil.rmtree(path)
+            except:
+                print("Failed to remove dir", path)
         else:
-            os.remove(path)
+            try:
+                os.remove(path)
+            except:
+                print("Failed to remove file", path)
